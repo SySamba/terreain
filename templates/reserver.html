@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Réserver un Terrain</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            color: white;
+            background-image: url("static/terrain.jpg");
+        }
+
+        header {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        header h1 {
+            font-size: 4.5rem;
+            margin: 0;
+            color: #4CAF50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            margin-left: 300px;
+        }
+
+        header img {
+            height: 140px;
+        }
+
+        .form-container {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            margin: 50px auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-container label {
+            color: #333;
+        }
+
+        .form-control, .form-select {
+            border-radius: 5px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .form-control:focus, .form-select:focus {
+            box-shadow: 0 0 8px rgba(76, 175, 80, 0.8);
+            border-color: #4CAF50;
+        }
+
+        .btn-success {
+            width: 100%;
+            font-size: 1.8rem;
+            padding: 10px;
+            background: linear-gradient(90deg, #4CAF50, #2E7D32);
+            border: none;
+            transition: background 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(90deg, #388E3C, #1B5E20);
+            transform: translateY(-2px);
+        }
+
+        .hour-box {
+            padding: 10px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease, background 0.3s ease;
+        }
+
+        .hour-box:disabled {
+            background-color: #d3d3d3;
+            color: #666;
+            cursor: not-allowed;
+        }
+
+        .hour-box.selected {
+            background-color: #388E3C;
+            transform: scale(1.05);
+        }
+
+        .hour-box:hover:not(:disabled) {
+            transform: scale(1.05);
+            background-color: #388E3C;
+        }
+
+        .selected-hour-display {
+            margin-top: 15px;
+            font-size: 1.2rem;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        footer {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px 0;
+            text-align: center;
+            color: white;
+            font-size: 30px;
+            margin-top: 50px;
+            box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        footer .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
+            align-items: center;
+        }
+
+        footer .footer-content div {
+            margin: 10px 20px;
+        }
+
+        footer a {
+            color: #4CAF50;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: #81C784;
+        }
+
+        footer p {
+            margin: 5px 0;
+            font-size: large;
+        }
+
+        .d-flex {
+    display: flex;
+    gap: 20px;
+}
+
+label img {
+    transition: transform 0.2s ease;
+}
+
+label:hover img {
+    transform: scale(1.1);
+}
+
+
+    </style>
+</head>
+<body>
+    <!-- En-tête -->
+    <header>
+        <img src="static/logo.png" alt="Logo" id="logo">
+        <h1>Réserver un Terrain</h1>
+    </header>
+
+    <!-- Formulaire -->
+    <div class="form-container">
+        <form method="POST" action="/reserver" onsubmit="return validateForm();">
+            <div class="mb-3">
+                <label for="nom" class="form-label">Nom</label>
+                <input type="text" class="form-control" id="nom" name="nom" placeholder="demba diop">
+            </div>
+            <div class="mb-3">
+                <label for="telephone" class="form-label">Téléphone</label>
+                <input type="tel" class="form-control" id="telephone" name="telephone" placeholder="773784515" required>
+            </div>
+            <div class="mb-3">
+                <label for="type_reservation" class="form-label">Type de réservation</label>
+                <select class="form-select" id="type_reservation" name="type_reservation"  onchange="calculatePrice();"required>
+                    <option value="Tout le terrain">Tout le terrain</option>
+                    <option value="1/3 du terrain">1/3 du terrain</option>
+                    
+                </select>
+                <p id="price-display" class="mt-2" style="color: #2E7D32;">Prix : 500 FCFA</p>
+
+            </div>
+            
+            
+            <div class="mb-3">
+                <label for="date" class="form-label">Date</label>
+                <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="mb-3">
+                <label for="heure" class="form-label">Heure</label>
+                <div class="hour-container">
+                    {% for hour in available_hours %}
+                        <button type="button" class="hour-box" id="hour_{{ hour }}" onclick="selectHour('{{ hour }}')" disabled>{{ hour }}</button>
+                    {% endfor %}
+                </div>
+                <div class="selected-hour-display" id="selected-hour-display">Aucune heure sélectionnée</div>
+                <input type="hidden" id="selected_hour" name="heure" required>
+            </div>
+
+            <form>
+                <div class="mb-3">
+                    <label for="moyen_paiement" class="form-label" style="text-align: center;">Moyen de paiement :</label>
+                    <br>
+                    <br>
+                    <div class="d-flex justify-content-between">
+                        <!-- Option Wave -->
+                        <label for="wave-option" style="cursor: pointer; text-align: center;">
+                            <input type="radio" id="wave-option" name="moyen_paiement" value="Wave" style="display: none;" onchange="toggleWaveLink()">
+                            <img src="static/wave.png" alt="Payez avec Wave" style="width: 120px; display: block; margin: 0 auto;">
+                            
+                        </label>
+            
+                        <!-- Option Orange Money -->
+                        <label for="om-option" style="cursor: pointer; text-align: center;">
+                            <input type="radio" id="om-option" name="moyen_paiement" value="OM" style="display: none;" onchange="toggleWaveLink()">
+                            <img src="static/orange-money.png" alt="Payez avec Orange Money" style="width: 120px; display: block; margin: 0 auto;">
+                            
+                        </label>
+                    </div>
+                </div>
+            
+                <div id="wave-link-container" style="display: none; margin-top: 15px;">
+                    <p style="color: #2E7D32;">Veuillez payer votre réservation via Wave :</p>
+                    <a href="https://pay.wave.com/m/M_sn_oFyc_WXbr_H7/c/sn/" target="_blank" class="btn btn-outline-primary">
+                        <strong style="color: #2E7D32;">Payez avec Wave</strong>
+                    </a>
+                </div>
+            
+            <br>
+            <button type="submit" class="btn btn-success">Réserver</button>
+        </form>
+    </div>
+
+    <!-- Pied de page -->
+    <footer>
+        <p>&copy; 2024 Réservation de Terrain. Tous droits réservés.</p>
+    </footer>
+
+    <script>
+        const reservedHours = {{ reserved_hours | tojson | safe }};
+        const todayDate = new Date().toISOString().split('T')[0];
+        const todayDateInput = document.getElementById('date');
+        const hourButtons = document.querySelectorAll('.hour-box');
+        const selectedHourDisplay = document.getElementById('selected-hour-display');
+
+        todayDateInput.min = todayDate; // Interdit les dates passées
+        todayDateInput.value = todayDate; // Par défaut : aujourd'hui
+
+        function updateAvailableHours(selectedDate) {
+            fetch(`/api/heures-disponibles?date=${selectedDate}`)
+                .then(response => response.json())
+                .then(data => {
+                    hourButtons.forEach(button => {
+                        const hour = button.textContent;
+                        if (data.available_hours.includes(hour)) {
+                            button.disabled = false;
+                        } else {
+                            button.disabled = true;
+                        }
+                    });
+                });
+        }
+
+        function updatePayment() {
+            const typeReservation = document.getElementById('type_reservation').value;
+            const montant = (typeReservation === "Tout le terrain") ? "350,000 FCFA" : "200,000 FCFA";
+            document.getElementById('montant').value = montant;
+        }
+
+        function selectHour(hour) {
+            document.getElementById('selected_hour').value = hour;
+            hourButtons.forEach(button => button.classList.remove('selected'));
+            document.getElementById(`hour_${hour}`).classList.add('selected');
+            selectedHourDisplay.textContent = `Heure sélectionnée : ${hour}`;
+        }
+
+        function toggleWaveLink() {
+    const waveLinkContainer = document.getElementById('wave-link-container');
+    const selectedPayment = document.querySelector('input[name="moyen_paiement"]:checked').value;
+
+    if (selectedPayment === 'Wave') {
+        waveLinkContainer.style.display = 'block';
+    } else {
+        waveLinkContainer.style.display = 'none';
+    }
+}
+
+
+
+        todayDateInput.addEventListener('change', function () {
+            updateAvailableHours(this.value);
+        });
+
+        updateAvailableHours(todayDate); // Met à jour les heures pour aujourd'hui
+
+        function validateForm() {
+            const selectedHour = document.getElementById('selected_hour').value;
+            if (!selectedHour) {
+                alert('Veuillez sélectionner une heure avant de réserver.');
+                return false;
+            }
+            return true;
+        }
+        function calculatePrice() {
+            const typeReservation = document.getElementById("type_reservation").value;
+            const price = typeReservation === "Tout le terrain" ? 500 : 300;
+            document.getElementById("price-display").textContent = `Prix: ${price} FCFA`;
+        }
+    </script>
+</body>
+</html>
