@@ -12,7 +12,7 @@
             background-size: cover;
             font-family: Arial, sans-serif;
             color: white;
-            background-image: url("static/terrain.jpg");
+            background-image: url("terrain.jpg");
         }
 
         header {
@@ -162,15 +162,15 @@ label:hover img {
 <body>
     <!-- En-tête -->
     <header>
-        <img src="static/logo.png" alt="Logo" id="logo">
+        <img src="logo.png" alt="Logo" id="logo">
         <h1>Réserver un Terrain</h1>
     </header>
 
     <!-- Formulaire -->
     <div class="form-container">
-        <form method="POST" action="/index" onsubmit="return validateForm();">
+        <form method="POST" action="/reserver" onsubmit="return validateForm();">
             <div class="mb-3">
-                <label for="nom" class="form-label"> votre Nom</label>
+                <label for="nom" class="form-label">Nom</label>
                 <input type="text" class="form-control" id="nom" name="nom" placeholder="demba diop">
             </div>
             <div class="mb-3">
@@ -213,14 +213,14 @@ label:hover img {
                         <!-- Option Wave -->
                         <label for="wave-option" style="cursor: pointer; text-align: center;">
                             <input type="radio" id="wave-option" name="moyen_paiement" value="Wave" style="display: none;" onchange="toggleWaveLink()">
-                            <img src="static/wave.png" alt="Payez avec Wave" style="width: 120px; display: block; margin: 0 auto;">
+                            <img src="wave.png" alt="Payez avec Wave" style="width: 120px; display: block; margin: 0 auto;">
                             
                         </label>
             
                         <!-- Option Orange Money -->
                         <label for="om-option" style="cursor: pointer; text-align: center;">
                             <input type="radio" id="om-option" name="moyen_paiement" value="OM" style="display: none;" onchange="toggleWaveLink()">
-                            <img src="static/orange-money.png" alt="Payez avec Orange Money" style="width: 120px; display: block; margin: 0 auto;">
+                            <img src="orange-money.png" alt="Payez avec Orange Money" style="width: 120px; display: block; margin: 0 auto;">
                             
                         </label>
                     </div>
